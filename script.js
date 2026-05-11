@@ -241,11 +241,19 @@ function directionOptions(entity) {
   return Object.keys(directions).filter((dir) => canMove(entity, dir));
 }
 
+function isReverseDirection(currentDir, nextDir) {
+  if (!currentDir || !nextDir) {
+    return false;
+  }
+
+  return (
+    directions[currentDir].x + directions[nextDir].x === 0 &&
+    directions[currentDir].y + directions[nextDir].y === 0
+  );
+}
+
 function chooseGhostDirection(ghost, frightened) {
-  const options = directionOptions(ghost).filter((dir) => {
-    const current = directions[ghost.dir];
-    return !(current && current.x + directions[dir].x === 0 && current.y + directions[dir].y === 0);
-  });
+  const options = directionOptions(ghost).filter((dir) => !isReverseDirection(ghost.dir, dir));
   const available = options.length ? options : directionOptions(ghost);
   if (frightened) {
     return available[Math.floor(Math.random() * available.length)];
@@ -375,14 +383,15 @@ function drawCell(x, y, cell) {
 function drawPlayer() {
   const centerX = game.player.x * TILE_SIZE + TILE_SIZE / 2;
   const centerY = game.player.y * TILE_SIZE + TILE_SIZE / 2;
+  const playerDir = game.player.dir || "left";
   const angleMap = {
     right: 0.2,
     down: 0.7,
     left: 1.2,
     up: 1.7,
   };
-  const startAngle = Math.PI * angleMap[game.player.dir];
-  const endAngle = Math.PI * (2 - angleMap[game.player.dir]);
+  const startAngle = Math.PI * angleMap[playerDir];
+  const endAngle = Math.PI * (2 - angleMap[playerDir]);
 
   ctx.fillStyle = "#ffd400";
   ctx.beginPath();

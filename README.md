@@ -7,7 +7,7 @@ A lightweight browser-based single-player Pac-Man clone.
 Because this project is just static files, you can open `index.html` directly in a browser or serve the folder with a small local server:
 
 ```bash
-cd /home/runner/work/letsc/letsc
+cd <project-directory>
 python3 -m http.server 8000
 ```
 
