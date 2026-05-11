@@ -20,6 +20,7 @@ const BASE_GRID = [
   "#o....#..P..#....o#",
   "###################",
 ];
+const GRID_WIDTH = Math.max(...BASE_GRID.map((row) => row.length));
 
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
@@ -43,8 +44,7 @@ let audioContext = null;
 let isMuted = false;
 
 function cloneGrid() {
-  const width = Math.max(...BASE_GRID.map((row) => row.length));
-  return BASE_GRID.map((row) => row.padEnd(width, "#").split(""));
+  return BASE_GRID.map((row) => row.padEnd(GRID_WIDTH, "#").split(""));
 }
 
 function createGame() {
@@ -163,7 +163,7 @@ function canMove(entity, dir) {
   return game.grid[nextY]?.[nextX] && game.grid[nextY][nextX] !== "#";
 }
 
-function resetRound(now = performance.now()) {
+function resetRound(now) {
   game.player.x = game.player.startX;
   game.player.y = game.player.startY;
   game.player.dir = "left";
@@ -257,8 +257,13 @@ function isReverseDirection(currentDir, nextDir) {
 }
 
 function chooseGhostDirection(ghost, frightened) {
-  const options = directionOptions(ghost).filter((dir) => !isReverseDirection(ghost.dir, dir));
-  const available = options.length ? options : directionOptions(ghost);
+  const allOptions = directionOptions(ghost);
+  const forwardOptions = allOptions.filter((dir) => !isReverseDirection(ghost.dir, dir));
+  const available = forwardOptions.length
+    ? forwardOptions
+    : canMove(ghost, ghost.dir)
+      ? [ghost.dir]
+      : allOptions;
   if (frightened) {
     return available[Math.floor(Math.random() * available.length)];
   }
@@ -493,6 +498,9 @@ function setDirectionFromKey(key) {
 }
 
 document.addEventListener("keydown", (event) => {
+  if (["Enter", "ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", "w", "a", "s", "d"].includes(event.key)) {
+    event.preventDefault();
+  }
   if (event.key === "Enter") {
     startGame();
   }
