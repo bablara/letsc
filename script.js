@@ -75,11 +75,13 @@ function createGame() {
       nextDir: "left",
     },
     ghosts: [
-      createGhost(9, 7, "left", ghostPalette[0]),
-      createGhost(8, 9, "right", ghostPalette[1]),
-      createGhost(10, 9, "up", ghostPalette[2]),
+      createGhost(1, 5, "right", ghostPalette[0]),
+      createGhost(17, 5, "left", ghostPalette[1]),
     ],
     powerUntil: 0,
+    roundDelayUntil: 0,
+    safeUntil: 0,
+    awaitingInput: true,
     playerAccumulator: 0,
     ghostAccumulator: 0,
   };
@@ -157,11 +159,16 @@ function canMove(entity, dir) {
   return game.grid[nextY]?.[nextX] && game.grid[nextY][nextX] !== "#";
 }
 
-function resetRound() {
+function resetRound(now = performance.now()) {
   game.player.x = game.player.startX;
   game.player.y = game.player.startY;
-  game.player.dir = "left";
-  game.player.nextDir = "left";
+  game.player.dir = null;
+  game.player.nextDir = null;
+  game.roundDelayUntil = now;
+  game.safeUntil = now;
+  game.awaitingInput = true;
+  game.playerAccumulator = 0;
+  game.ghostAccumulator = 0;
 
   game.ghosts.forEach((ghost, index) => {
     ghost.x = ghost.homeX;
@@ -192,9 +199,9 @@ function startGame() {
   if (game.state === "won" || game.state === "gameover") {
     game = createGame();
   }
-  resetRound();
+  resetRound(performance.now());
   game.state = "running";
-  setStatus("Collect every pellet and avoid the ghosts.");
+  setStatus("Choose a direction to begin.");
   updateHud();
 }
 
@@ -216,6 +223,7 @@ function handlePlayerStep(now) {
     game.score += 10;
     game.pellets -= 1;
     playChomp();
+    updateHud();
   } else if (cell === "o") {
     game.grid[game.player.y][game.player.x] = " ";
     game.score += 50;
@@ -225,6 +233,7 @@ function handlePlayerStep(now) {
       ghost.frightenedUntil = game.powerUntil;
     });
     playPower();
+    updateHud();
   }
 }
 
@@ -239,6 +248,9 @@ function chooseGhostDirection(ghost, frightened) {
   });
   const available = options.length ? options : directionOptions(ghost);
   if (frightened) {
+    return available[Math.floor(Math.random() * available.length)];
+  }
+  if (available.length > 1 && Math.random() < 0.35) {
     return available[Math.floor(Math.random() * available.length)];
   }
 
@@ -263,13 +275,17 @@ function handleGhosts(now) {
   });
 }
 
-function handleCollisions() {
+function handleCollisions(now) {
+  if (now < game.safeUntil) {
+    return;
+  }
+
   for (const ghost of game.ghosts) {
     if (ghost.x !== game.player.x || ghost.y !== game.player.y) {
       continue;
     }
 
-    if (ghost.frightenedUntil > performance.now()) {
+    if (ghost.frightenedUntil > now) {
       game.score += 200;
       ghost.x = ghost.homeX;
       ghost.y = ghost.homeY;
@@ -289,7 +305,7 @@ function handleCollisions() {
       return;
     }
 
-    resetRound();
+    resetRound(now);
     setStatus(`You were caught. ${game.lives} lives remaining.`);
     return;
   }
@@ -309,13 +325,17 @@ function update(now, delta) {
     return;
   }
 
+  if (game.awaitingInput || now < game.roundDelayUntil) {
+    return;
+  }
+
   game.playerAccumulator += delta;
   game.ghostAccumulator += delta;
 
   if (game.playerAccumulator >= 140) {
     game.playerAccumulator = 0;
     handlePlayerStep(now);
-    handleCollisions();
+    handleCollisions(now);
     maybeWin();
   }
 
@@ -323,10 +343,10 @@ function update(now, delta) {
     return;
   }
 
-  if (game.ghostAccumulator >= 180) {
+  if (game.ghostAccumulator >= 220) {
     game.ghostAccumulator = 0;
     handleGhosts(now);
-    handleCollisions();
+    handleCollisions(now);
   }
 }
 
@@ -450,6 +470,12 @@ function setDirectionFromKey(key) {
   const nextDir = map[key];
   if (nextDir) {
     game.player.nextDir = nextDir;
+    if (game.state === "running" && game.awaitingInput) {
+      game.player.dir = nextDir;
+      game.awaitingInput = false;
+      game.safeUntil = performance.now() + 1800;
+      setStatus("Collect every pellet and avoid the ghosts.");
+    }
   }
 }
 
