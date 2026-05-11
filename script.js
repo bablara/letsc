@@ -51,7 +51,7 @@ function cloneGrid() {
 function createGame() {
   const grid = cloneGrid();
   let pellets = 0;
-  let playerStart = { x: 9, y: 13 };
+  let playerStart = null;
 
   grid.forEach((row, y) => {
     row.forEach((cell, x) => {
@@ -64,6 +64,12 @@ function createGame() {
       }
     });
   });
+
+  if (!playerStart) {
+    const fallbackY = Math.floor(grid.length / 2);
+    const fallbackX = Math.floor(grid[0].length / 2);
+    playerStart = grid[fallbackY]?.[fallbackX] !== "#" ? { x: fallbackX, y: fallbackY } : { x: 1, y: 1 };
+  }
 
   return {
     grid,
@@ -98,6 +104,7 @@ function createGhost(x, y, dir, color) {
     y,
     homeX: x,
     homeY: y,
+    startDir: dir,
     dir,
     color,
     frightenedUntil: 0,
@@ -175,10 +182,10 @@ function resetRound(now) {
   game.playerAccumulator = 0;
   game.ghostAccumulator = 0;
 
-  game.ghosts.forEach((ghost, index) => {
+  game.ghosts.forEach((ghost) => {
     ghost.x = ghost.homeX;
     ghost.y = ghost.homeY;
-    ghost.dir = index % 2 === 0 ? "left" : "right";
+    ghost.dir = ghost.startDir;
     ghost.frightenedUntil = 0;
   });
 }
@@ -260,11 +267,10 @@ function isReverseDirection(currentDir, nextDir) {
 function chooseGhostDirection(ghost, frightened) {
   const allOptions = directionOptions(ghost);
   const forwardOptions = allOptions.filter((dir) => !isReverseDirection(ghost.dir, dir));
-  const available = forwardOptions.length
-    ? forwardOptions
-    : canMove(ghost, ghost.dir)
-      ? [ghost.dir]
-      : allOptions;
+  let available = forwardOptions;
+  if (!available.length) {
+    available = canMove(ghost, ghost.dir) ? [ghost.dir] : allOptions;
+  }
   if (frightened) {
     return available[Math.floor(Math.random() * available.length)];
   }
