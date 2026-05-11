@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pac-Man</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <main class="app">
+      <section class="panel">
+        <div>
+          <p class="eyebrow">Single Player</p>
+          <h1>Pac-Man</h1>
+          <p class="subtitle">
+            Eat every pellet, dodge the ghosts, and grab power pellets to turn the
+            chase around.
+          </p>
+        </div>
+
+        <div class="hud">
+          <div><span>Score</span><strong id="score">0</strong></div>
+          <div><span>Lives</span><strong id="lives">3</strong></div>
+          <div><span>Level</span><strong>1</strong></div>
+        </div>
+
+        <div class="actions">
+          <button id="start-button" type="button">Start game</button>
+          <button id="mute-button" type="button">Mute sounds</button>
+        </div>
+
+        <p id="status" class="status">
+          Press Start or Enter, then move with Arrow keys or WASD.
+        </p>
+
+        <ul class="legend">
+          <li>• Small pellets are worth 10 points.</li>
+          <li>• Power pellets are worth 50 points and scare ghosts.</li>
+          <li>• Eat frightened ghosts for bonus points.</li>
+        </ul>
+      </section>
+
+      <section class="game-shell">
+        <canvas
+          id="game"
+          width="456"
+          height="360"
+          aria-label="Pac-Man game board"
+        ></canvas>
+      </section>
+    </main>
+
+    <script src="script.js"></script>
+  </body>
+</html>
