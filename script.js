@@ -323,7 +323,7 @@ function handleCollisions(now) {
     }
 
     resetRound(now);
-    setStatus(`You were caught. ${game.lives} lives remaining.`);
+    setStatus(`You were caught. ${game.lives} ${game.lives === 1 ? "life" : "lives"} remaining.`);
     return;
   }
 }
