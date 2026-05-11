@@ -1,4 +1,8 @@
 const TILE_SIZE = 24;
+const PLAYER_STEP_INTERVAL = 140;
+const GHOST_STEP_INTERVAL = 220;
+const POWER_DURATION_MS = 8000;
+const SAFE_PERIOD_MS = 1800;
 const BASE_GRID = [
   "###################",
   "#o......#......#o#",
@@ -162,8 +166,8 @@ function canMove(entity, dir) {
 function resetRound(now = performance.now()) {
   game.player.x = game.player.startX;
   game.player.y = game.player.startY;
-  game.player.dir = null;
-  game.player.nextDir = null;
+  game.player.dir = "left";
+  game.player.nextDir = "left";
   game.roundDelayUntil = now;
   game.safeUntil = now;
   game.awaitingInput = true;
@@ -228,7 +232,7 @@ function handlePlayerStep(now) {
     game.grid[game.player.y][game.player.x] = " ";
     game.score += 50;
     game.pellets -= 1;
-    game.powerUntil = now + 8000;
+    game.powerUntil = now + POWER_DURATION_MS;
     game.ghosts.forEach((ghost) => {
       ghost.frightenedUntil = game.powerUntil;
     });
@@ -340,7 +344,7 @@ function update(now, delta) {
   game.playerAccumulator += delta;
   game.ghostAccumulator += delta;
 
-  if (game.playerAccumulator >= 140) {
+  if (game.playerAccumulator >= PLAYER_STEP_INTERVAL) {
     game.playerAccumulator = 0;
     handlePlayerStep(now);
     handleCollisions(now);
@@ -351,7 +355,7 @@ function update(now, delta) {
     return;
   }
 
-  if (game.ghostAccumulator >= 220) {
+  if (game.ghostAccumulator >= GHOST_STEP_INTERVAL) {
     game.ghostAccumulator = 0;
     handleGhosts(now);
     handleCollisions(now);
@@ -482,7 +486,7 @@ function setDirectionFromKey(key) {
     if (game.state === "running" && game.awaitingInput) {
       game.player.dir = nextDir;
       game.awaitingInput = false;
-      game.safeUntil = performance.now() + 1800;
+      game.safeUntil = performance.now() + SAFE_PERIOD_MS;
       setStatus("Collect every pellet and avoid the ghosts.");
     }
   }
