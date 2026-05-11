@@ -1,0 +1,145 @@
+:root {
+  color-scheme: dark;
+  --bg: #070b1a;
+  --panel: rgba(8, 15, 38, 0.9);
+  --text: #f3f5ff;
+  --muted: #b9bfd3;
+  --accent: #ffe45e;
+  --accent-2: #73f0ff;
+  --danger: #ff6b81;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: Arial, Helvetica, sans-serif;
+  background:
+    radial-gradient(circle at top, rgba(50, 99, 255, 0.2), transparent 35%),
+    linear-gradient(180deg, #0a1030 0%, var(--bg) 100%);
+  color: var(--text);
+}
+
+.app {
+  width: min(1120px, calc(100% - 32px));
+  margin: 0 auto;
+  min-height: 100vh;
+  display: grid;
+  gap: 24px;
+  grid-template-columns: minmax(280px, 340px) minmax(0, 1fr);
+  align-items: center;
+  padding: 24px 0;
+}
+
+.panel,
+.game-shell {
+  background: var(--panel);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 24px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+}
+
+.panel {
+  padding: 24px;
+  display: grid;
+  gap: 20px;
+}
+
+.eyebrow {
+  margin: 0 0 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: var(--accent-2);
+  font-size: 0.72rem;
+}
+
+h1 {
+  margin: 0;
+  font-size: clamp(2.4rem, 4vw, 3.3rem);
+}
+
+.subtitle,
+.legend,
+.status {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.hud {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.hud div {
+  padding: 14px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.05);
+  text-align: center;
+}
+
+.hud span {
+  display: block;
+  font-size: 0.8rem;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+
+.hud strong {
+  font-size: 1.5rem;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+button {
+  cursor: pointer;
+  border: 0;
+  border-radius: 999px;
+  padding: 12px 18px;
+  font: inherit;
+  font-weight: 700;
+  color: #071126;
+  background: var(--accent);
+  transition: transform 120ms ease, opacity 120ms ease;
+}
+
+button:hover {
+  transform: translateY(-1px);
+}
+
+button:nth-child(2) {
+  background: var(--accent-2);
+}
+
+.legend {
+  padding-left: 18px;
+}
+
+.game-shell {
+  padding: 18px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+canvas {
+  width: 100%;
+  max-width: 912px;
+  aspect-ratio: 19 / 15;
+  border-radius: 18px;
+  background: #02050f;
+}
+
+@media (max-width: 900px) {
+  .app {
+    grid-template-columns: 1fr;
+  }
+}
