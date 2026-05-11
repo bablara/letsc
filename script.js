@@ -3,6 +3,7 @@ const PLAYER_STEP_INTERVAL = 140;
 const GHOST_STEP_INTERVAL = 220;
 const POWER_DURATION_MS = 8000;
 const SAFE_PERIOD_MS = 1800;
+const GHOST_RANDOMNESS_FACTOR = 0.35;
 const BASE_GRID = [
   "###################",
   "#o......#......#o#",
@@ -267,7 +268,7 @@ function chooseGhostDirection(ghost, frightened) {
   if (frightened) {
     return available[Math.floor(Math.random() * available.length)];
   }
-  if (available.length > 1 && Math.random() < 0.35) {
+  if (available.length > 1 && Math.random() < GHOST_RANDOMNESS_FACTOR) {
     return available[Math.floor(Math.random() * available.length)];
   }
 
